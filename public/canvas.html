@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+  <body>
+
+    <canvas id="myCanvas" width="1000" height="500"
+      style="border:1px solid #c3c3c3;">
+      Your browser does not support the canvas element.
+    </canvas>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+  <script>
+
+    var socket;
+    socket = io.connect('http://localhost:3000');
+    socket.on('moved', updateCanvas);
+    socket.on('new player', assignPlayer);
+    socket.on('new other player', addPlayer);
+    socket.on('older other players', addOldPlayers);
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+
+
+    var players = [{
+      x : 0,
+      y : 200,
+      id : "",
+      color : "#FF0000",
+    },];
+
+
+function assignPlayer(data){
+
+  console.log("UNIQUE ID IS: " + data.id);
+  players[0].id = data.id;
+  players[0].x = data.x;
+  players[0].y = data.y;
+  players[0].color = data.color;
+  ctx.fillStyle = players[0].color;
+  ctx.fillRect(players[0].x,players[0].y,50,100);
+}
+
+function addPlayer(data){
+  players.push(data);
+  console.log("ADDING NEW PLAYER" + data.id);
+  console.log("ARRAY LENGTH IS: " + players.length);
+  ctx.fillStyle = data.color;
+  ctx.fillRect(data.x,data.y,50,100);
+
+
+}
+
+function addOldPlayers(data){
+  console.log("INDEED WE ARE ADDING A OLD PLAYERS");
+  for (var j = 0; j < data.length; j += 1){
+
+    players.push(data[j]);
+
+    ctx.fillStyle = data[j].color;
+    ctx.fillRect(data[j].x,data[j].y,50,100);
+  }
+
+
+}
+
+function drawRect(){
+  ctx.fillStyle = players[0].color;
+  ctx.fillRect(players[0].x,players[0].y,50,100);
+
+}
+
+function clearRect(){
+  ctx.clearRect(players[0].x,players[0].y,50,100);
+}
+
+function updateCanvas(data){
+  console.log("CANVAS SHOULD UPDATE");
+
+
+  for (var i = 0; i < players.length; i += 1){
+
+    if (players[i].id == data.id){
+      console.log("WE GOT A MATCHHHHHH");
+      ctx.clearRect(players[i].x,players[i].y,50,100);
+      players[i].x = data.x;
+      players[i].y= data.y;
+      ctx.fillStyle = players[i].color;
+      ctx.fillRect(players[i].x,players[i].y,50,100);
+      break;
+    }
+  }
+
+}
+
+// e.propagate look it up
+    function onkeydown(e) {
+
+      var coordinates = {
+        x : players[0].x,
+        y : players[0].y,
+        id : players[0].id,
+        color : players[0].color
+      }
+
+      if (e.keyCode == 39) {
+          clearRect();
+          players[0].x += 5;
+          drawRect();
+      } //right arrow
+      else if (e.keyCode == 37) {
+          console.log("LEFT KEY");
+          clearRect();
+          players[0].x -= 5;
+          drawRect();
+
+      } //left arrow
+      else if (e.keyCode == 38) {
+        clearRect();
+        players[0].y -= 5;
+        drawRect();
+      } //up arrow
+      else if (e.keyCode == 40) {
+        clearRect();
+        players[0].y += 5;
+        drawRect();
+      } //down arrow
+
+      console.log("DATA SHOULD'VE BEEN EMITED");
+      socket.emit('moved', coordinates);
+
+    }
+
+
+  window.addEventListener("keydown", onkeydown);
+
+
+
+  </script>
+
+  </body>
+</html>

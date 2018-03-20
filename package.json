@@ -1,0 +1,14 @@
+{
+  "name": "parfaitassignment2",
+  "version": "1.0.0",
+  "description": "using web socket for collaborative web application",
+  "main": "a2server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Parfait Kingwaya",
+  "license": "ISC",
+  "dependencies": {
+    "socket.io": "^2.0.4"
+  }
+}
